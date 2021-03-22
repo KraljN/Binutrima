@@ -7,6 +7,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PostController as PostRatings;
 use App\Http\Controllers\CommentController as CommentRatings;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,8 +33,7 @@ Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::middleware(['ajax'])->group(function(){
     Route::resource('posts.comments', CommentController::class);
 });
-//Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-//Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+Route::get('/admin', [AdminController::class, 'index'])->name('admin')->middleware('admin');
 Route::resource('users', UserController::class);
 Route::middleware(['auth'])->group(function(){
     Route::post('posts/{id}/post-ratings', [PostRatings::class, 'vote']);
