@@ -1,0 +1,109 @@
+@media (max-width: 1399.98px) {
+  .navFont {
+    font-size: 0.9rem;
+    margin-top: 4px; }
+
+  #auth {
+    border-left: 1px solid #ced4da; }
+
+  .iconFont {
+    font-size: 1rem; } }
+@media (max-width: 1199.98px) {
+  .formPadding {
+    padding: 30px 0 50px 0; }
+
+  #authentication {
+    padding: 30px 0 50px 0; } }
+@media (max-width: 991.98px) {
+  .navFont {
+    font-size: 0.9rem;
+    margin-top: 0; }
+
+  #main .mainImage {
+    height: 300px; }
+  #main .mainTextbox {
+    min-height: 300px; }
+
+  .commentImage {
+    height: 55px; }
+
+  #auth {
+    border-left: none; }
+
+  .iconFont {
+    font-size: 1rem; }
+
+  #profilePicture {
+    width: 85px;
+    height: 65px; } }
+@media (max-width: 767.98px) {
+  .newestPostImage {
+    height: 250px; }
+
+  .commentImage {
+    width: 100%;
+    height: 45px; }
+
+  #profilePicture {
+    width: 75px;
+    height: 55px; } }
+@media (max-width: 575.98px) {
+  .navFont {
+    font-size: 0.85rem; }
+
+  .footerText {
+    font-size: 0.9rem; }
+
+  #main .mainImage {
+    height: 200px; }
+  #main .mainTextbox {
+    min-height: 200px; }
+    #main .mainTextbox .desc {
+      font-size: 1rem; }
+    #main .mainTextbox h1 {
+      font-size: 1.4rem; } }
+    @media (max-width: 575.98px) and (max-width: 1200px) {
+      #main .mainTextbox h1 {
+        font-size: calc(1.265rem + 0.18vw) ; } }
+@media (max-width: 575.98px) {
+    #main .mainTextbox p {
+      font-size: 0.9rem; }
+
+  #authentication span, #authentication label, #authentication button {
+    font-size: 0.8rem; }
+
+  #contact span, #contact label, #contact button, #profile span, #profile label, #profile button {
+    font-size: 0.8rem; }
+
+  .info {
+    font-size: 0.8rem; }
+
+  #post h1 {
+    font-size: 1.2rem; }
+  #post #postText, #post p {
+    font-size: 0.9rem; }
+  #post #postLike {
+    font-size: 0.7rem !important;
+    min-width: 60px; }
+    #post #postLike button {
+      font-size: 0.7rem !important; }
+  #post #postDislike {
+    font-size: 0.7rem !important;
+    min-width: 60px; }
+    #post #postDislike button {
+      font-size: 0.7rem !important; }
+
+  #comments .commentImage {
+    width: 100%;
+    height: 60px; }
+  #comments p {
+    font-size: 0.9rem; }
+  #comments label {
+    font-size: 0.9rem; }
+  #comments #commentSubmit {
+    font-size: 0.9rem; }
+
+  .newestPostImage {
+    height: 200px; } }
+
+/*# sourceMappingURL=responsive.css.map */
