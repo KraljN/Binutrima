@@ -13,6 +13,7 @@ use App\Models\Image;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 class AuthenticationController extends BaseController
 {
@@ -58,7 +59,12 @@ class AuthenticationController extends BaseController
         if(Auth::attempt(['username' => $request->usernameLog, 'password' => $request->passLog])){
             $request->session()->regenerate();
             Log::channel('activity')->info("Korisnik $request->usernameLog se prijavio", ['ip'=>$request->ip(), 'time'=>now()]);
-            return route('home');
+            if(Auth::user()->role_id == Config::get('constants.admin_id')){
+                return route('admin');
+            }
+            else{
+                return route('home');
+            }
         }
         else{
             return response()->json(["message"=>"error"], 401);
