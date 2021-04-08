@@ -31,21 +31,21 @@
                     @endforeach
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" id="auth"
-                           href="@guest {{route('login.index')}} @endguest @auth {{route('logout')}} @endauth ">@guest <i class="fas fa-sign-in-alt mt-xxl-1 mt-xl-2 mt-lg-1 iconFont"></i>  @endguest  @auth <i class="fas fa-share-square mt-xxl-1 mt-xl-2 mt-lg-1 iconFont"></i>  @endauth
+                           href="@guest {{route('login.index')}} @endguest @auth {{route('logout')}} @endauth ">@guest <i class="fas fa-sign-in-alt mt-lg-1 iconFont"></i>  @endguest  @auth <i class="fas fa-share-square mt-lg-1 iconFont"></i>  @endauth
                         </a>
                     </li>
                     @auth
                         @if(Auth::user()->role_id == Config::get('constants.admin_id'))
                             <li class="nav-item">
-                                <a class="nav-link" aria-current="page"  href="#">
-                                    <i class="fas fa-tools iconFont mt-xxl-1 mt-xl-2 mt-lg-1"></i>
+                                <a class="nav-link" aria-current="page"  href="{{route('admin.reports')}}">
+                                    <i class="fas fa-tools iconFont mt-lg-1"></i>
                                 </a>
                             </li>
                         @endif
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page"  href="{{route('users.edit', Auth::id())}}">
-                                <i class="fas fa-user iconFont mt-xxl-1 mt-xl-2 mt-lg-1"></i>
-                                <span class="text-lowercase ms-1 mt-xxl-1 mt-xl-2 mt-lg-1">{{Auth::user()->username}}</span>
+                                <i class="fas fa-user iconFont mt-lg-1"></i>
+                                <span class="text-lowercase ms-1 mt-lg-1">{{Auth::user()->username}}</span>
                             </a>
                         </li>
                     @endauth

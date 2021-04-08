@@ -147,6 +147,9 @@
             @include font-size(.9rem);
         }
     }
+    #adminPanel tr, #adminPanel p, #adminPanel button{
+        @include font-size(.9rem);
+    }
     .newestPostImage{
         height: 200px;
     }

@@ -32,6 +32,10 @@ $(document).ready(function(){
         var passNew = $('#passNew').val()
         $("#submitUserEdit").click(function(event){proveriUserEdit(ime, prezime, email, username, passOld, passNew)});
     }
+    if(routeName == "admin.reports"){
+        ispisiAktivnosti();
+        $("#allReports").on("click", ispisiAktivnosti);
+    }
     $("#summernote").summernote();
 });
 function proveraTb(polje, regExp, text){
@@ -324,7 +328,7 @@ function izbrisiKomentar(e){
     var postId = $("#postId").val();
     e.preventDefault();
     console.log("komentar pozvan za  brisanje");
-    var commentId = $(this).data('id');dd
+    var commentId = $(this).data('id');
     $.ajax({
         type:'DELETE',
         url:`${postId}/comments/${commentId}`,
@@ -485,4 +489,63 @@ function vratiPocetnoStanje(ellements){
         value.next().html("");
         value.css('border', '1px solid #ced4da');
     })
+}
+function ispisiAktivnosti(){
+    $.ajax({
+        url: baseUrl + "/admin/reports/activities",
+        type: "GET",
+        dataType: "json",
+        success: function(data){
+            // console.log(data);
+            ispisiTabeluAktivnosti(data);
+        },
+        error: function(error){
+
+        }
+    })
+}
+function ispisiTabeluAktivnosti(data){
+    data.reverse();
+    var ispis = `
+        <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Aktivnost</th>
+                            <th>Post Id</th>
+                            <th>IP adresa</th>
+                            <th>Datum i vreme</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+    data.forEach(function(el, index){
+        let datum = new Date(el.data.time.split(" ")[0]);
+        let vreme = el.data.time.split(" ")[1];
+        let mesec = datum.getMonth() + 1
+        let datumIspravanFormat = datum.getDate() + "-" + mesec + "-" + datum.getFullYear()
+        ispis+=`
+                <tr>
+                    <td>${index + 1}</td>
+                    <td`;
+                    if(el.data.commentMessage == undefined) ispis+=` colspan="2"`;
+                    ispis += `>   <!-- Ako nema commentMessage ide colspan='2' -->  ${el.message}`;
+                    if(el.data.commentMessage != undefined) ispis+= `<br/> "${el.data.commentMessage}"`;
+                    if(el.data.contactMessage != undefined) ispis+= `<br/> "${el.data.contactMessage}"`;
+                    ispis+=`</td>`;<!--  <br/> Ako ima commentMessage dodati comment poruku  ako ima contactMessage onda dodati contact poruku -->
+                    if(el.data.commentMessage != undefined)ispis+=`<td><a href="${baseUrl}/posts/${el.data.post}">${el.data.post}</a></td>`;
+                    ispis+=`<td>${el.data.ip}</td>
+                    <td>${datumIspravanFormat} ${vreme}</td>
+                </tr>
+        `;
+    });
+
+    ispis+= `
+                 </tbody>
+             </table>
+         </div>
+    `;
+    if(data.length == 0) ispis = `<p class="fw-bold mt-5">Trenutno nema zapisa ove vrste</p>`;
+    $("#tabelaActivities").html(ispis);
 }

@@ -27,7 +27,7 @@ class ContactController extends BaseController
         try{
             foreach ($adminsEmails as $emails){
                 \Mail::to($emails)->send(new ContactMail($details));
-                Log::channel('activity')->info($request->nameContact . " je poslao poruku administratorima", ['ip'=>$request->ip(), 'poruka'=>$request->message, 'time'=>now()]);
+                Log::channel('activity')->info($request->nameContact . " je poslao poruku administratorima:", ['ip'=>$request->ip(), 'contactMessage'=>$request->message, 'time'=>now()]);
             }
 
             return response()->json(['message'=>'success'], 201);

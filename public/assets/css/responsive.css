@@ -103,6 +103,9 @@
   #comments #commentSubmit {
     font-size: 0.9rem; }
 
+  #adminPanel tr, #adminPanel p, #adminPanel button {
+    font-size: 0.9rem; }
+
   .newestPostImage {
     height: 200px; } }
 

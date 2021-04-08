@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CommentRequest;
 use Illuminate\Support\Facades\Log;
 
-class CommentController extends Controller
+class CommentController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -79,7 +79,7 @@ class CommentController extends Controller
                 $comment->created_at = now();
                 $comment->updated_at = now();
                 $comment->save();
-                Log::channel('activity')->info("Postavljen nov komentar", ['ip'=>$request->ip(), 'user_id'=>$request->userId, 'time'=>now(), 'post'=>$postId]);
+                Log::channel('activity')->info("Postavljen nov komentar:", ['ip'=>$request->ip(), 'commentMessage'=>$request->text, 'time'=>now(), 'post'=>$postId]);
             });
             return response()->json(['message'=>'success'], 201);
         }
@@ -132,6 +132,7 @@ class CommentController extends Controller
     public function destroy($postId, $commentId)
     {
        $comment = Comment::find($commentId);
+        Log::channel('activity')->info("Uklonjen komentar:", ['ip'=>request()->ip(), 'commentMessage'=>$comment->text, 'time'=>now(), 'post'=>$postId]);
        $comment->delete();
     }
 }

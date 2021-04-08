@@ -8,6 +8,7 @@ use App\Http\Controllers\PostController as PostRatings;
 use App\Http\Controllers\CommentController as CommentRatings;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +34,12 @@ Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::middleware(['ajax'])->group(function(){
     Route::resource('posts.comments', CommentController::class);
 });
-Route::get('/admin', [AdminController::class, 'index'])->name('admin')->middleware('admin');
+Route::middleware(['admin'])->group(function(){
+    Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::get('/admin/reports/activities', [AdminController::class, 'activities'])->name('admin.reports.activities');
+    Route::redirect('/admin', url('/admin/reports'));
+});
+//Route::get('/admin', [AdminController::class, 'index'])->name('admin')->middleware('admin');
 Route::resource('users', UserController::class);
 Route::middleware(['auth'])->group(function(){
     Route::post('posts/{id}/post-ratings', [PostRatings::class, 'vote']);

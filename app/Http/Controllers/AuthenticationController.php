@@ -60,7 +60,7 @@ class AuthenticationController extends BaseController
             $request->session()->regenerate();
             Log::channel('activity')->info("Korisnik $request->usernameLog se prijavio", ['ip'=>$request->ip(), 'time'=>now()]);
             if(Auth::user()->role_id == Config::get('constants.admin_id')){
-                return route('admin');
+                return route('admin.reports');
             }
             else{
                 return route('home');
