@@ -35,8 +35,13 @@ $(document).ready(function(){
     if(routeName == "admin.reports"){
         if( localStorage.getItem('activitiesPage') == null) localStorage.setItem('activitiesPage', "1");
         ispisiAktivnosti();
-        $(window).resize(resizePagination);
-        // $("#allReports").on("click", ispisiAktivnosti);
+        $("#activitiesDate").on("change", function(){ispisiAktivnosti(1)});
+        $(window).on('resize', resizePagination)
+        $(".reportDateFilter").on('change', filterReport)
+        $("#allReports").on("click", function(){
+            $("#activitiesDate").val(null);
+            ispisiAktivnosti(1);
+        });
     }
     $("#summernote").summernote();
 });
@@ -486,20 +491,25 @@ function proveriUserEdit(ime, prezime, email, username, passOld, passNew){
         })
     }
 }
-function vratiPocetnoStanje(ellements){
-    $.each(ellements, function(index, value){
+function vratiPocetnoStanje(elements){
+    $.each(elements, function(index, value){
         value.next().html("");
         value.css('border', '1px solid #ced4da');
     })
 }
 function ispisiAktivnosti(page = localStorage.getItem('activitiesPage')){
+    localStorage.setItem('activitiesPage', page);
     $.ajax({
         url: baseUrl + "/admin/reports/activities/page/" + page,
         type: "GET",
         dataType: "json",
+        data: {
+            date : $("#activitiesDate").val()
+        },
         success: function(data){
-            // console.log(data);
-            ispisiTabeluAktivnosti(data.information);
+            ispisiTabeluAktivnosti(data);
+            console.log("totalni broj je " + data.totalNumber);
+            if(data.totalNumber != 0 && data.information[0].data == null ) data.totalNumber = 0;
             ispisiPaginaciju(data.totalNumber, "reportsPagination", "activities");
         },
         error: function(error){
@@ -522,75 +532,84 @@ function ispisiTabeluAktivnosti(data){
                     </thead>
                     <tbody>
     `;
-    data.forEach(function(el, index){
-        let datum = new Date(el.data.time.split(" ")[0]);
-        let vreme = el.data.time.split(" ")[1];
-        let mesec = datum.getMonth() + 1
-        let datumIspravanFormat = datum.getDate() + "-" + mesec + "-" + datum.getFullYear()
-        ispis+=`
+    if(data.totalNumber == 0 ||  data.information[0].data == null){
+        ispis = `<p class="fw-bold mt-5">Trenutno nema zapisa ove vrste</p>`;
+    }
+    else{
+        data.information.forEach(function(el, index){
+            let datum = new Date(el.data.time.split(" ")[0]);
+            let vreme = el.data.time.split(" ")[1];
+            let mesec = datum.getMonth() + 1
+            let datumIspravanFormat = datum.getDate() + "-" + mesec + "-" + datum.getFullYear()
+            ispis+=`
                 <tr>
                     <td>${index + 1}</td>
                     <td`;
-                    if(el.data.commentMessage == undefined) ispis+=` colspan="2"`;
-                    ispis += `>   <!-- Ako nema commentMessage ide colspan='2' -->  ${el.message}`;
-                    if(el.data.commentMessage != undefined) ispis+= `<br/> "${el.data.commentMessage}"`;
-                    if(el.data.contactMessage != undefined) ispis+= `<br/> "${el.data.contactMessage}"`;
-                    ispis+=`</td>`;<!--  <br/> Ako ima commentMessage dodati comment poruku  ako ima contactMessage onda dodati contact poruku -->
-                    if(el.data.commentMessage != undefined)ispis+=`<td><a href="${baseUrl}/posts/${el.data.post}">${el.data.post}</a></td>`;
-                    ispis+=`<td>${el.data.ip}</td>
+            if(el.data.commentMessage == undefined) ispis+=` colspan="2"`;
+            ispis += `>   <!-- Ako nema commentMessage ide colspan='2' -->  ${el.message}`;
+            if(el.data.commentMessage != undefined) ispis+= `<br/> "${el.data.commentMessage}"`;
+            if(el.data.contactMessage != undefined) ispis+= `<br/> "${el.data.contactMessage}"`;
+            ispis+=`</td>`;<!--  <br/> Ako ima commentMessage dodati comment poruku  ako ima contactMessage onda dodati contact poruku -->
+            if(el.data.commentMessage != undefined)ispis+=`<td><a href="${baseUrl}/posts/${el.data.post}">${el.data.post}</a></td>`;
+            ispis+=`<td>${el.data.ip}</td>
                     <td>${datumIspravanFormat} ${vreme}</td>
                 </tr>
         `;
-    });
-
-    ispis+= `
+        });
+        ispis+= `
                  </tbody>
              </table>
          </div>
     `;
-    if(data.length == 0) ispis = `<p class="fw-bold mt-5">Trenutno nema zapisa ove vrste</p>`;
+    }
     $("#tabelaActivities").html(ispis);
 }
 function ispisiPaginaciju(total, place, type){
-    let trigerClass = type == "activities" ? "activitiesPagination" : "errorPagination";
-    let currentPageNumber = type == "activities" ? localStorage.getItem('activitiesPage') : null ; // null promeniti za errors
-    let perPage = 5;
-    let ispis =`<ul class="pagination d-flex justify-content-center mt-3">`;
-    let numberOfPages = Math.ceil(total / perPage);
-    console.log("broj stranica je: " + numberOfPages);
+    console.log("totalni broj u paginaciji je " + total);
+        if(total > 0 ){
+            let trigerClass = type == "activities" ? "activitiesPagination" : "errorPagination";
+            let currentPageNumber = type == "activities" ? localStorage.getItem('activitiesPage') : null ; // null promeniti za errors
+            let perPage = 5;
+            let ispis =`<ul class="pagination d-flex justify-content-center mt-3">`;
+            let numberOfPages = Math.ceil(total / perPage);
+            // console.log("broj stranica je: " + numberOfPages);
+            let start = currentPageNumber - 1;
+            let end = parseInt(currentPageNumber) + 1;
 
-    let start = currentPageNumber - 1;
-    let end = parseInt(currentPageNumber) + 1;
+            if( start <= 0 ) {
+                start = 1;
+                end = start + 2;
+            }
 
-    if( start == 0 ) {
-        start = 1;
-        end = start + 2;
-    }
+            if( end > numberOfPages ){
+                end = numberOfPages;
+                start = end - 2;
+                if( start <= 0 ) start = 1;
+            }
+            // console.log("poslednji broj stranice u for-u je: " + end);
+            // console.log("trenutna stranica je : " + currentPageNumber);
 
-    if( end > numberOfPages ){
-        end = numberOfPages;
-        start = end - 2;
-    }
-    console.log("poslednji broj stranice u for-u je: " + end);
-    console.log("trenutna stranica je : " + currentPageNumber);
+            if( currentPageNumber > 3 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="1">Start</button> </li>`;
+            if(currentPageNumber > 1) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) - 1}">&lt;</button> </li>`;
 
-    if( currentPageNumber > 3 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="1">Start</button> </li>`;
-    if(currentPageNumber > 1) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) - 1}">&lt;</button> </li>`;
+            for(let i = start; i<=end; i++){
+                ispis += `<li class="page-item "><button class="page-link ${trigerClass} `;
+                if( currentPageNumber == i) ispis+= `activePaginationButton text-white`;
+                else{
+                    ispis+= `otherPaginationButton text-dark`;
+                }
+                ispis+=`" data-page="${i}">${i}</button></li>`; //${baseUrl + "/admin/reports/activities/page/" + y}
+            }
+            if(currentPageNumber < numberOfPages) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) + 1}">&gt;</button> </li>`
+            if( currentPageNumber < numberOfPages - 2 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${numberOfPages}">Kraj</button> </li>`;
+            ispis += `</ul>`
+            $("#" + place).html(ispis);
 
-    for(let i = start; i<=end; i++){
-        ispis += `<li class="page-item "><button class="page-link ${trigerClass} `;
-        if( currentPageNumber == i) ispis+= `activePaginationButton text-white`;
-        else{
-            ispis+= `otherPaginationButton text-dark`;
+            $(".activitiesPagination").on("click", reloadActivities);
         }
-        ispis+=`" data-page="${i}">${i}</button></li>`; //${baseUrl + "/admin/reports/activities/page/" + y}
-    }
-    if(currentPageNumber < numberOfPages) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) + 1}">&gt;</button> </li>`
-    if( currentPageNumber < numberOfPages - 2 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${numberOfPages}">Kraj</button> </li>`;
-    ispis += `</ul>`
-    $("#" + place).html(ispis);
-
-    $(".activitiesPagination").on("click", reloadActivities);
+        else{
+            $("#" + place).html("");
+        }
 
 }
 function reloadActivities(){
@@ -607,4 +626,7 @@ function resizePagination(){
             $(".pagination").removeClass('pagination-sm');
         }
     }
+}
+function filterReport(){
+
 }

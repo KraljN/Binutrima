@@ -20,7 +20,7 @@
                 <p class="siva mb-0">Izaberite izveštaje po datumu</p>
             </div>
             <div class="col-8 col-md-6 col-lg-4 mt-1 mt-md-0">
-                <input class="form-control" type="date" name="" id=""/>
+                <input class="form-control" type="date" id="activitiesDate"/>
             </div>
             <div class="col-2 mx-auto mt-2 mt-lg-0">
                 <button class="btn btn-success" id="allReports">
@@ -32,11 +32,6 @@
             <div class="table-responsive" id="tabelaActivities">
             </div>
             <div id="reportsPagination">
-{{--                <ul class="pagination d-flex justify-content-center mt-3">--}}
-{{--                    <li class="page-item "><a class="page-link activePaginationButton text-dark" href="#">1</a></li>--}}
-{{--                    <li class="page-item"><a class="page-link otherPaginationButton text-dark" href="#">2</a></li>--}}
-{{--                    <li class="page-item"><a class="page-link otherPaginationButton text-dark" href="#">3</a></li>--}}
-{{--                </ul>--}}
             </div>
         </div>
     </div>
