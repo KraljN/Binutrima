@@ -33,8 +33,10 @@ $(document).ready(function(){
         $("#submitUserEdit").click(function(event){proveriUserEdit(ime, prezime, email, username, passOld, passNew)});
     }
     if(routeName == "admin.reports"){
+        if( localStorage.getItem('activitiesPage') == null) localStorage.setItem('activitiesPage', "1");
         ispisiAktivnosti();
-        $("#allReports").on("click", ispisiAktivnosti);
+        $(window).resize(resizePagination);
+        // $("#allReports").on("click", ispisiAktivnosti);
     }
     $("#summernote").summernote();
 });
@@ -490,14 +492,15 @@ function vratiPocetnoStanje(ellements){
         value.css('border', '1px solid #ced4da');
     })
 }
-function ispisiAktivnosti(){
+function ispisiAktivnosti(page = localStorage.getItem('activitiesPage')){
     $.ajax({
-        url: baseUrl + "/admin/reports/activities",
+        url: baseUrl + "/admin/reports/activities/page/" + page,
         type: "GET",
         dataType: "json",
         success: function(data){
             // console.log(data);
-            ispisiTabeluAktivnosti(data);
+            ispisiTabeluAktivnosti(data.information);
+            ispisiPaginaciju(data.totalNumber, "reportsPagination", "activities");
         },
         error: function(error){
 
@@ -505,7 +508,6 @@ function ispisiAktivnosti(){
     })
 }
 function ispisiTabeluAktivnosti(data){
-    data.reverse();
     var ispis = `
         <div class="table-responsive">
                 <table class="table table-striped">
@@ -548,4 +550,61 @@ function ispisiTabeluAktivnosti(data){
     `;
     if(data.length == 0) ispis = `<p class="fw-bold mt-5">Trenutno nema zapisa ove vrste</p>`;
     $("#tabelaActivities").html(ispis);
+}
+function ispisiPaginaciju(total, place, type){
+    let trigerClass = type == "activities" ? "activitiesPagination" : "errorPagination";
+    let currentPageNumber = type == "activities" ? localStorage.getItem('activitiesPage') : null ; // null promeniti za errors
+    let perPage = 5;
+    let ispis =`<ul class="pagination d-flex justify-content-center mt-3">`;
+    let numberOfPages = Math.ceil(total / perPage);
+    console.log("broj stranica je: " + numberOfPages);
+
+    let start = currentPageNumber - 1;
+    let end = parseInt(currentPageNumber) + 1;
+
+    if( start == 0 ) {
+        start = 1;
+        end = start + 2;
+    }
+
+    if( end > numberOfPages ){
+        end = numberOfPages;
+        start = end - 2;
+    }
+    console.log("poslednji broj stranice u for-u je: " + end);
+    console.log("trenutna stranica je : " + currentPageNumber);
+
+    if( currentPageNumber > 3 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="1">Start</button> </li>`;
+    if(currentPageNumber > 1) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) - 1}">&lt;</button> </li>`;
+
+    for(let i = start; i<=end; i++){
+        ispis += `<li class="page-item "><button class="page-link ${trigerClass} `;
+        if( currentPageNumber == i) ispis+= `activePaginationButton text-white`;
+        else{
+            ispis+= `otherPaginationButton text-dark`;
+        }
+        ispis+=`" data-page="${i}">${i}</button></li>`; //${baseUrl + "/admin/reports/activities/page/" + y}
+    }
+    if(currentPageNumber < numberOfPages) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) + 1}">&gt;</button> </li>`
+    if( currentPageNumber < numberOfPages - 2 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${numberOfPages}">Kraj</button> </li>`;
+    ispis += `</ul>`
+    $("#" + place).html(ispis);
+
+    $(".activitiesPagination").on("click", reloadActivities);
+
+}
+function reloadActivities(){
+    let page = $(this).data('page')
+    localStorage.setItem('activitiesPage', page);
+    ispisiAktivnosti();
+}
+function resizePagination(){
+    if( $(window).width() <  550){
+        $(".pagination").addClass('pagination-sm');
+    }
+    else{
+        if( $(".pagination").hasClass('pagination-sm') ){
+            $(".pagination").removeClass('pagination-sm');
+        }
+    }
 }

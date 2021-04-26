@@ -30,24 +30,13 @@
         </div>
         <div class="row w-100 mx-0">
             <div class="table-responsive" id="tabelaActivities">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Aktivnost</th>
-                            <th>IP adresa</th>
-                            <th>Datum i vreme</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Nikola Kralj je poslao poruku administratorima: <br/> "Bože pomozi ko ovan ovci"</td>
-                            <td>127.0.0.1</td>
-                            <td>2021-03-15 12:00:35</td>
-                        </tr>
-                    </tbody>
-                </table>
+            </div>
+            <div id="reportsPagination">
+{{--                <ul class="pagination d-flex justify-content-center mt-3">--}}
+{{--                    <li class="page-item "><a class="page-link activePaginationButton text-dark" href="#">1</a></li>--}}
+{{--                    <li class="page-item"><a class="page-link otherPaginationButton text-dark" href="#">2</a></li>--}}
+{{--                    <li class="page-item"><a class="page-link otherPaginationButton text-dark" href="#">3</a></li>--}}
+{{--                </ul>--}}
             </div>
         </div>
     </div>

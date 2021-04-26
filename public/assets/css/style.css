@@ -15,10 +15,11 @@ input[type=number]:focus,
 [type=email].form-control:focus,
 [type=tel].form-control:focus,
 [contenteditable].form-control:focus,
-.btn:focus {
-  box-shadow: none;
-  outline: none;
-  border: 1px solid grey; }
+.btn:focus,
+button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+  border: 1px solid grey !important; }
 
 textarea {
   resize: none; }
