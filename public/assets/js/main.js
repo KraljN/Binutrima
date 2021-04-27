@@ -38,12 +38,12 @@ $(document).ready(function(){
         ispisiAktivnosti();
         ispisiGreske();
 
-        $("#activitiesDate").on("change", function(){ispisiAktivnosti(1)});
+        fetchAllReportsListener("activitiesDate", ispisiAktivnosti);
+        fetchAllReportsListener("errorsDate", ispisiGreske);
+        fetchAllReportsListener("allActivities", ispisiAktivnosti, true);
+        fetchAllReportsListener("allErrors", ispisiGreske, true);
+
         $(window).on('resize', resizePagination)
-        $("#allReports").on("click", function(){
-            $("#activitiesDate").val(null);
-            ispisiAktivnosti(1);
-        });
 
     }
     $("#summernote").summernote();
@@ -634,7 +634,8 @@ function resizePagination(){
     }
 }
 function ispisiGreske(page = localStorage.getItem('errorsPage')){
-    localStorage.setItem('activitiesPage', page);
+    localStorage.setItem('errorsPage', page);
+    console.log("pozvan ispis gresaka");
     $.ajax({
         url: baseUrl + "/admin/reports/errors/page/" + page,
         type: "GET",
@@ -643,15 +644,15 @@ function ispisiGreske(page = localStorage.getItem('errorsPage')){
             date : $("#errorsDate").val()
         },
         success: function(data){
-            // console.log(data);
             ispisiTabeluGreske(data);
+            // console.log(data);
             // console.log("totalni broj je " + data.totalNumber);
             if(data.totalNumber != 0 && data.information[0].data == null ) data.totalNumber = 0;
             ispisiPaginaciju(data.totalNumber, "errorsPagination", "errors");
             $(".errorPagination").on("click", function (){ reloadReportTable('errorsPage', ispisiGreske, this) });//
         },
         error: function(error){
-
+            console.log(error);
         }
     })
 }
@@ -677,7 +678,7 @@ function ispisiTabeluGreske(data){
             data.information.forEach(function(el, i){
                 // console.log(el);
                 const perPage = 5;
-                let currentPage = localStorage.getItem('activitiesPage');
+                let currentPage = localStorage.getItem('errorsPage');
                 let index = (parseInt(currentPage) - 1) * perPage + i + 1;
                 let datum = new Date(el.data.time.split(" ")[0]);
                 let vreme = el.data.time.split(" ")[1];
@@ -700,5 +701,15 @@ function ispisiTabeluGreske(data){
     `;
         }
         $("#tabelaErrors").html(ispis);
+}
+function fetchAllReportsListener(target, callback, resetDateValue = false){
+
+    let event = $("#" + target).is("input[type=date]")? "change" : "click";
+    $("#" + target).on(event, function(){
+        if(resetDateValue){
+            $("#" + target).parent().prev().children().val(null);
+        }
+        callback(1);
+    });
 }
 

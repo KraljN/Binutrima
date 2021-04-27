@@ -23,7 +23,7 @@
                 <input class="form-control" type="date" id="activitiesDate"/>
             </div>
             <div class="col-2 mx-auto mt-2 mt-lg-0">
-                <button class="btn btn-success" id="allReports">
+                <button class="btn btn-success" id="allActivities">
                     Svi
                 </button>
             </div>
