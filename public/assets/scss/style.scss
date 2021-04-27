@@ -289,7 +289,10 @@ textarea {
 .nav-pills .nav-link.active{
     background-color: $base-color;
 }
-#aktivnosti table{
+#tabelaActivities table{
     min-width: 600px;
+}
+#tabelaErrors table{
+    min-width: 800px;
 }
 

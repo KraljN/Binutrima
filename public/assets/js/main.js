@@ -34,14 +34,17 @@ $(document).ready(function(){
     }
     if(routeName == "admin.reports"){
         if( localStorage.getItem('activitiesPage') == null) localStorage.setItem('activitiesPage', "1");
+        if( localStorage.getItem('errorsPage') == null) localStorage.setItem('errorsPage', "1");
         ispisiAktivnosti();
+        ispisiGreske();
+
         $("#activitiesDate").on("change", function(){ispisiAktivnosti(1)});
         $(window).on('resize', resizePagination)
-        $(".reportDateFilter").on('change', filterReport)
         $("#allReports").on("click", function(){
             $("#activitiesDate").val(null);
             ispisiAktivnosti(1);
         });
+
     }
     $("#summernote").summernote();
 });
@@ -508,9 +511,10 @@ function ispisiAktivnosti(page = localStorage.getItem('activitiesPage')){
         },
         success: function(data){
             ispisiTabeluAktivnosti(data);
-            console.log("totalni broj je " + data.totalNumber);
+            // console.log("totalni broj je " + data.totalNumber);
             if(data.totalNumber != 0 && data.information[0].data == null ) data.totalNumber = 0;
             ispisiPaginaciju(data.totalNumber, "reportsPagination", "activities");
+            $(".activitiesPagination").on("click", function(){ reloadReportTable("activitiesPage", ispisiAktivnosti, this) });
         },
         error: function(error){
 
@@ -536,14 +540,17 @@ function ispisiTabeluAktivnosti(data){
         ispis = `<p class="fw-bold mt-5">Trenutno nema zapisa ove vrste</p>`;
     }
     else{
-        data.information.forEach(function(el, index){
+        data.information.forEach(function(el, i){
             let datum = new Date(el.data.time.split(" ")[0]);
             let vreme = el.data.time.split(" ")[1];
-            let mesec = datum.getMonth() + 1
+            let mesec = datum.getMonth() + 1;
+            const perPage = 5;
+            let currentPage = localStorage.getItem('activitiesPage');
+            let index = (parseInt(currentPage) - 1) * perPage + i + 1;
             let datumIspravanFormat = datum.getDate() + "-" + mesec + "-" + datum.getFullYear()
             ispis+=`
                 <tr>
-                    <td>${index + 1}</td>
+                    <td class="fw-bold">${index}</td>
                     <td`;
             if(el.data.commentMessage == undefined) ispis+=` colspan="2"`;
             ispis += `>   <!-- Ako nema commentMessage ide colspan='2' -->  ${el.message}`;
@@ -565,10 +572,10 @@ function ispisiTabeluAktivnosti(data){
     $("#tabelaActivities").html(ispis);
 }
 function ispisiPaginaciju(total, place, type){
-    console.log("totalni broj u paginaciji je " + total);
+    // console.log("totalni broj u paginaciji je " + total);
         if(total > 0 ){
             let trigerClass = type == "activities" ? "activitiesPagination" : "errorPagination";
-            let currentPageNumber = type == "activities" ? localStorage.getItem('activitiesPage') : null ; // null promeniti za errors
+            let currentPageNumber = type == "activities" ? localStorage.getItem('activitiesPage') : localStorage.getItem('errorsPage') ; // null promeniti za errors
             let perPage = 5;
             let ispis =`<ul class="pagination d-flex justify-content-center mt-3">`;
             let numberOfPages = Math.ceil(total / perPage);
@@ -586,8 +593,6 @@ function ispisiPaginaciju(total, place, type){
                 start = end - 2;
                 if( start <= 0 ) start = 1;
             }
-            // console.log("poslednji broj stranice u for-u je: " + end);
-            // console.log("trenutna stranica je : " + currentPageNumber);
 
             if( currentPageNumber > 3 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="1">Start</button> </li>`;
             if(currentPageNumber > 1) ispis += `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${parseInt(currentPageNumber) - 1}">&lt;</button> </li>`;
@@ -604,18 +609,19 @@ function ispisiPaginaciju(total, place, type){
             if( currentPageNumber < numberOfPages - 2 ) ispis+= `<li class="page-item"> <button class="page-link ${trigerClass} otherPaginationButton text-dark" data-page="${numberOfPages}">Kraj</button> </li>`;
             ispis += `</ul>`
             $("#" + place).html(ispis);
-
-            $(".activitiesPagination").on("click", reloadActivities);
         }
         else{
             $("#" + place).html("");
         }
 
+
 }
-function reloadActivities(){
-    let page = $(this).data('page')
-    localStorage.setItem('activitiesPage', page);
-    ispisiAktivnosti();
+function reloadReportTable(localStorageItem, callback, obj){
+    // console.log('pokrenuta obnova ' + localStorageItem);
+    let page = obj.dataset.page;
+    console.log(page);
+    localStorage.setItem(localStorageItem, page);
+    callback();
 }
 function resizePagination(){
     if( $(window).width() <  550){
@@ -627,6 +633,72 @@ function resizePagination(){
         }
     }
 }
-function filterReport(){
+function ispisiGreske(page = localStorage.getItem('errorsPage')){
+    localStorage.setItem('activitiesPage', page);
+    $.ajax({
+        url: baseUrl + "/admin/reports/errors/page/" + page,
+        type: "GET",
+        dataType: "json",
+        data: {
+            date : $("#errorsDate").val()
+        },
+        success: function(data){
+            // console.log(data);
+            ispisiTabeluGreske(data);
+            // console.log("totalni broj je " + data.totalNumber);
+            if(data.totalNumber != 0 && data.information[0].data == null ) data.totalNumber = 0;
+            ispisiPaginaciju(data.totalNumber, "errorsPagination", "errors");
+            $(".errorPagination").on("click", function (){ reloadReportTable('errorsPage', ispisiGreske, this) });//
+        },
+        error: function(error){
 
+        }
+    })
 }
+function ispisiTabeluGreske(data){
+    var ispis = `
+        <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="d-flex">
+                            <th class="col-1">#</th>
+                            <th class="col-6">Poruka</th>
+                            <th class="col-1">Naziv Rute</th>
+                            <th class="col-2">IP adresa</th>
+                            <th class="col-2">Datum i vreme</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+    if(data.totalNumber == 0 ||  data.information[0].data == null){
+        ispis = `<p class="fw-bold mt-5">Trenutno nema zapisa ove vrste</p>`;
+    }
+    else{
+            data.information.forEach(function(el, i){
+                // console.log(el);
+                const perPage = 5;
+                let currentPage = localStorage.getItem('activitiesPage');
+                let index = (parseInt(currentPage) - 1) * perPage + i + 1;
+                let datum = new Date(el.data.time.split(" ")[0]);
+                let vreme = el.data.time.split(" ")[1];
+                let mesec = datum.getMonth() + 1
+                let datumIspravanFormat = datum.getDate() + "-" + mesec + "-" + datum.getFullYear()
+                ispis+=`
+                <tr class="d-flex">
+                    <td class="col-1 fw-bold">${index}</td>
+                    <td class="col-6 text-break">${el.message}</td>
+                    <td class="col-1">${el.data.routeName}</td>
+                    <td class="col-2">${el.data.ip}</td>
+                    <td class="col-2">${datumIspravanFormat} ${vreme}</td>
+                </tr>
+        `;
+            });
+            ispis+= `
+                 </tbody>
+             </table>
+         </div>
+    `;
+        }
+        $("#tabelaErrors").html(ispis);
+}
+

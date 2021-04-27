@@ -9,8 +9,14 @@ class AdminController extends BaseController
     public function reports(){
         return view('admin.main.reports', $this->data);
     }
-    public function activities($page, Request $request){
-        $rows = file(storage_path('logs/activities.log'));
+    public function activities($type ,$page, Request $request){
+        if($type == "activities"){
+            $rows = file(storage_path('logs/activities.log'));
+        }
+        else{
+            $rows = file(storage_path('logs/errors.log'));
+
+        }
         $rows =  array_reverse($rows);
         $filteredRows = array();
 

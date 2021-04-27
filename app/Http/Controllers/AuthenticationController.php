@@ -51,7 +51,7 @@ class AuthenticationController extends BaseController
             return response()->json(["message"=>"success"], 201);
         }
         catch(\Exception $e){
-            Log::channel('errors')->error($e->getMessage(), ['ip'=>$request->ip(), 'path'=>$request->path(), 'method'=>$request->method(), 'time'=>now()]);
+            Log::channel('errors')->error($e->getMessage(), ['ip'=>$request->ip(), 'routeName'=>$request->route()->getName(), 'time'=>now()]);
             return response()->json(["message"=>"error"], 409);
         }
     }

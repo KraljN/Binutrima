@@ -36,7 +36,7 @@ Route::middleware(['ajax'])->group(function(){
 });
 Route::middleware(['admin'])->group(function(){
     Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
-    Route::get('/admin/reports/activities/page/{page}', [AdminController::class, 'activities'])->name('admin.reports.activities');
+    Route::get('/admin/reports/{type}/page/{page}', [AdminController::class, 'activities'])->name('admin.reports.activities');
     Route::redirect('/admin', url('/admin/reports'));
 });
 //Route::get('/admin', [AdminController::class, 'index'])->name('admin')->middleware('admin');

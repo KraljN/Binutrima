@@ -258,7 +258,10 @@ textarea {
 .nav-pills .nav-link.active {
   background-color: #1ad914; }
 
-#aktivnosti table {
+#tabelaActivities table {
   min-width: 600px; }
+
+#tabelaErrors table {
+  min-width: 800px; }
 
 /*# sourceMappingURL=style.css.map */
